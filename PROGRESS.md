@@ -5,8 +5,8 @@ macOS menu bar app showing battery levels for all iCloud-connected devices (iPho
 
 **Repo:** https://github.com/naif824/BatteryBar
 **Website:** https://icamel.app/product/batterybar/
-**Bundle ID:** `cc.naif.batterybar.v7.3`
-**Current Version:** 7.3 (Swift native)
+**Bundle ID:** `cc.naif.batterybar`
+**Current Version:** 1.0 (Swift native)
 **DMG:** Signed + Notarized with Apple Developer ID
 
 ---
@@ -45,11 +45,11 @@ macOS menu bar app showing battery levels for all iCloud-connected devices (iPho
 - Session auto-restores from cookies (~2 months)
 - Settings attempted via Tkinter (white screen bug under py2app)
 
-### Phase 2: Swift Native Rewrite (v5.0–v7.3)
+### Phase 2: Swift Native Rewrite (v5.0–v1.0)
 
 User rewrote the app in native Swift, resolving all Python/py2app issues.
 
-#### v7.3 — Current Release
+#### v1.0 — Current Release
 - **Pure Swift** — 1,106 lines across 8 source files, no Python dependency
 - **Native macOS** — AppKit, WebKit, Security, IOBluetooth frameworks
 - **Architecture:**
@@ -117,7 +117,7 @@ Web cookies cannot access Find My. FMIP requires SRP-derived tokens.
 ## Project Structure
 
 ```
-BatteryBarV7.3/
+BatteryBarV1.0/
 ├── Sources/
 │   ├── main.swift                  — Entry point
 │   ├── AppController.swift         — Menu bar + device list (326 lines)

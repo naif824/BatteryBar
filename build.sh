@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 EXECUTABLE="$ROOT/build/BatteryBar"
-APP="$ROOT/dist/BatteryBar 7.3.app"
+APP="$ROOT/dist/BatteryBar 1.0.app"
 
-echo "Compiling BatteryBar V7.3..."
+echo "Compiling BatteryBar v1.0..."
 swiftc \
   -O \
   -framework AppKit \

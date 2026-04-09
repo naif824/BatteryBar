@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIdentifier</key>
-    <string>cc.naif.batterybar.v7.3</string>
+    <string>cc.naif.batterybar</string>
     <key>CFBundleName</key>
     <string>BatteryBar</string>
     <key>CFBundleDisplayName</key>
@@ -11,9 +11,9 @@
     <key>CFBundleExecutable</key>
     <string>BatteryBar</string>
     <key>CFBundleVersion</key>
-    <string>7.3</string>
+    <string>1.0</string>
     <key>CFBundleShortVersionString</key>
-    <string>7.3</string>
+    <string>1.0</string>
     <key>CFBundleIconFile</key>
     <string>icon</string>
     <key>CFBundlePackageType</key>
