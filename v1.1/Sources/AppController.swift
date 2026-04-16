@@ -457,6 +457,7 @@ final class AppController: NSObject {
     }
 
     @objc private func checkForUpdatesPressed() {
+        NSApp.activate(ignoringOtherApps: true)
         updaterController.checkForUpdates(nil)
     }
 
