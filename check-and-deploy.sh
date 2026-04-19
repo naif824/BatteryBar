@@ -2,7 +2,7 @@
 # BatteryBar — check GitHub for new tags, deploy OTA if new version found
 set -e
 
-PROJ_DIR="/home/ft/apps/MacApps/BatteryBar"
+PROJ_DIR="/home/ft/apps/high/MacApps/BatteryBar"
 DEPLOYED_FILE="$PROJ_DIR/.last-deployed-version"
 LOG="/home/ft/tools/logs/batterybar-deploy.log"
 

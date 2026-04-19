@@ -92,7 +92,8 @@ final class AppController: NSObject {
             logError("refreshDevices sessionExpired (\(consecutiveFailures)/\(maxConsecutiveFailures))")
             if !sessionExpiredNotified {
                 sessionExpiredNotified = true
-                signInPressed()
+                // Try silent re-auth with stored credentials before showing login UI
+                await attemptSilentReauth()
             }
         } catch let error as NSError where error.domain == NSURLErrorDomain && error.code == -1009 {
             // Network offline — don't count as failure, just wait for connectivity
@@ -101,11 +102,11 @@ final class AppController: NSObject {
             consecutiveFailures += 1
             logError("refreshDevices error (\(consecutiveFailures)/\(maxConsecutiveFailures)): \(error)")
 
-            // After repeated failures, escalate to session expired
+            // After repeated failures, try silent re-auth before showing login UI
             if consecutiveFailures >= maxConsecutiveFailures && !sessionExpiredNotified {
                 sessionExpiredNotified = true
                 icloud.clearSession()
-                signInPressed()
+                await attemptSilentReauth()
             }
         }
 
@@ -114,6 +115,54 @@ final class AppController: NSObject {
 
     private func logError(_ msg: String) {
         DebugLog.write(msg, category: "App")
+    }
+
+    // MARK: - Silent re-auth
+
+    private func attemptSilentReauth() async {
+        guard let creds = CredentialStore.load() else {
+            DebugLog.write("No stored credentials — showing login window", category: "App")
+            signInPressed()
+            return
+        }
+
+        DebugLog.write("Attempting silent re-auth for \(creds.appleID)", category: "App")
+
+        let authService = AppleAuthService(session: icloud.urlSession)
+        do {
+            let result = try await authService.authenticate(
+                appleID: creds.appleID,
+                password: creds.password,
+                storedTrustToken: AuthTokenStore.load().trustToken,
+                twoFAHandler: {
+                    // If 2FA is needed, we can't do it silently — show login window
+                    DebugLog.write("Silent re-auth needs 2FA — showing login window", category: "App")
+                    return nil
+                }
+            )
+
+            // Re-auth succeeded
+            AuthTokenStore.save(
+                sessionToken: result.sessionToken,
+                sessionTokenSource: "silent-reauth",
+                trustToken: result.trustToken,
+                scnt: result.scnt,
+                sessionId: result.sessionId,
+                accountCountry: result.accountCountry
+            )
+
+            icloud.clearSession()
+            icloud.applyAuthResult(result)
+            consecutiveFailures = 0
+            sessionExpiredNotified = false
+
+            DebugLog.write("Silent re-auth succeeded", category: "App")
+            await refreshDevices()
+
+        } catch {
+            DebugLog.write("Silent re-auth failed: \(error) — showing login window", category: "App")
+            signInPressed()
+        }
     }
 
     // MARK: - Clear all web data

@@ -3,9 +3,9 @@
 set -e
 
 MAC="naif@100.122.115.71"
-PROJ_DIR="/home/ft/apps/MacApps/BatteryBar"
+PROJ_DIR="/home/ft/apps/high/MacApps/BatteryBar"
 MAC_PROJ="~/apps/BatteryBar"
-ICAMEL_DIR="/home/ft/apps/MacApps/icamel/web/product/batterybar"
+ICAMEL_DIR="/home/ft/apps/high/MacApps/icamel/web/product/batterybar"
 SIGN_ID="Developer ID Application: Naif AlQazlan (9VRVCKY375)"
 APP_NAME="BatteryBar"
 
@@ -21,6 +21,15 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 echo "  Version: $VERSION"
+
+# Extract release notes from CHANGELOG.md
+NOTES=""
+if [ -f "$PROJ_DIR/CHANGELOG.md" ]; then
+    NOTES=$(sed -n "/^## v${VERSION}$/,/^## /{/^## v${VERSION}$/d;/^## /d;p;}" "$PROJ_DIR/CHANGELOG.md" | sed 's/^- /<li>/;s|$|</li>|' | grep '<li>' | head -10)
+fi
+if [ -z "$NOTES" ]; then
+    NOTES="<li>Update v${VERSION}</li>"
+fi
 
 echo "==> Syncing to Mac via rsync..."
 rsync -av --delete --exclude='.git' --exclude='build' --exclude='dist' --exclude='.DS_Store' \
@@ -56,7 +65,7 @@ echo "Notarized & stapled"
 
 # Sparkle sign (uses keychain-stored key)
 SIGN_UPDATE="\$(find ~/apps/Swalfy -name sign_update -path '*/Sparkle/bin/*' 2>/dev/null | head -1)"
-"\$SIGN_UPDATE" /tmp/${APP_NAME}-update.zip --ed-key-file ~/.batterybar/sparkle_ed25519_key.txt 2>&1
+"\$SIGN_UPDATE" /tmp/${APP_NAME}-update.zip --ed-key-file ~/apps/BatteryBar/sparkle_ed25519_key.txt 2>&1
 REMOTE
 
 echo "==> Getting Sparkle signature..."
@@ -89,6 +98,11 @@ cat > "$ICAMEL_DIR/appcast.xml" << APPCAST
     <language>en</language>
     <item>
       <title>Version ${VERSION}</title>
+      <description><![CDATA[
+        <ul>
+          ${NOTES}
+        </ul>
+      ]]></description>
       <pubDate>${PUB_DATE}</pubDate>
       <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
       <enclosure
