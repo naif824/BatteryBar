@@ -8,7 +8,7 @@ IDENTITY="Developer ID Application: Naif AlQazlan (9VRVCKY375)"
 SPARKLE_XCFW="/Users/naif/apps/BookmarkHub/build/DerivedData/SourcePackages/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64"
 SPARKLE_FW="$SPARKLE_XCFW/Sparkle.framework"
 
-echo "Compiling BatteryBar..."
+echo "Compiling BatteryBar (arm64)..."
 SDK=$(xcrun --show-sdk-path --sdk macosx)
 swiftc -sdk "$SDK" \
   -target arm64-apple-macos13.0 \
@@ -23,7 +23,27 @@ swiftc -sdk "$SDK" \
   -Xlinker -rpath -Xlinker @executable_path/../Frameworks \
   "$ROOT"/Sources/*.swift \
   "$ROOT"/Sources/BigInt/*.swift \
-  -o "$EXECUTABLE"
+  -o "${EXECUTABLE}_arm64"
+
+echo "Compiling BatteryBar (x86_64)..."
+swiftc -sdk "$SDK" \
+  -target x86_64-apple-macos13.0 \
+  -F "$SPARKLE_XCFW" \
+  -O \
+  -framework AppKit \
+  -framework Foundation \
+  -framework Security \
+  -framework WebKit \
+  -framework IOBluetooth \
+  -framework Sparkle \
+  -Xlinker -rpath -Xlinker @executable_path/../Frameworks \
+  "$ROOT"/Sources/*.swift \
+  "$ROOT"/Sources/BigInt/*.swift \
+  -o "${EXECUTABLE}_x86_64"
+
+echo "Creating Universal binary..."
+lipo -create "${EXECUTABLE}_arm64" "${EXECUTABLE}_x86_64" -output "$EXECUTABLE"
+rm -f "${EXECUTABLE}_arm64" "${EXECUTABLE}_x86_64"
 
 echo "Packaging app bundle..."
 rm -rf "$APP"
